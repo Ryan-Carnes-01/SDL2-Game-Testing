@@ -153,22 +153,22 @@ struct App{
             player->fireDelay--;
         }
 
-        if(keyboard[SDL_SCANCODE_UP]){
+        if(keyboard[SDL_SCANCODE_UP] || keyboard[SDL_SCANCODE_W]){
             if(player->y >= 0){
                 player->dy = -PLAYER_SPEED;
             }
         }
-        if(keyboard[SDL_SCANCODE_DOWN]){
+        if(keyboard[SDL_SCANCODE_DOWN] || keyboard[SDL_SCANCODE_S]){
             if(player->y + player->h <= SCREEN_HEIGHT){
                 player->dy = PLAYER_SPEED;
             }
         }
-        if(keyboard[SDL_SCANCODE_LEFT]){
+        if(keyboard[SDL_SCANCODE_LEFT] || keyboard[SDL_SCANCODE_A]){
             if(player->x >= 0){
                 player->dx = -PLAYER_SPEED;
             }
         }
-        if(keyboard[SDL_SCANCODE_RIGHT]){
+        if(keyboard[SDL_SCANCODE_RIGHT] || keyboard[SDL_SCANCODE_D]){
             if(player->x + player->w <= SCREEN_WIDTH){
                 player->dx = PLAYER_SPEED;
             }
