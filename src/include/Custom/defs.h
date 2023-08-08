@@ -1,9 +1,29 @@
-#define SCREEN_WIDTH 1280//1360
-#define SCREEN_HEIGHT 720//835
-#define MAX_KEYBOARD_KEYS 355
-#define PLAYER_SPEED 6
-#define PLAYER_HEALTH 100
-#define PLAYER_START_X 600
-#define PLAYER_START_Y 400
-#define BULLET_SPEED 30
-#define FRAME_DELAY 16
+#include <SDL2/SDL.h>
+#define SCREEN_WIDTH 1240
+#define SCREEN_HEIGHT 720
+#define MAX_KEYBOARD_KEYS 350
+#define PLAYER_SPEED 1
+#define BULLET_SPEED 10
+#define FIRE_DELAY 200
+
+/*struct App{
+    struct Entity;
+    struct Stage;
+    void initSDL();
+    void destroySDL();
+    void prepareScene();
+    void presentScene();
+    SDL_Texture* loadTexture(char*);
+    void blit(SDL_Texture*, float, float);
+    void doInput();
+    void initPlayer();
+    void initStage();
+    void drawPlayer();
+    void drawBullets();
+    void doDraw();
+    void doKeyUp(SDL_KeyboardEvent*);
+    void doKeyDown(SDL_KeyboardEvent*);
+    void doLogic();
+    void doPlayer();
+    void doBullets();
+};*/
