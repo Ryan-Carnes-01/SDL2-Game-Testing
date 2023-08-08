@@ -2,9 +2,10 @@
 #define SCREEN_WIDTH 1240
 #define SCREEN_HEIGHT 720
 #define MAX_KEYBOARD_KEYS 350
-#define PLAYER_SPEED 1
-#define BULLET_SPEED 10
-#define FIRE_DELAY 200
+#define PLAYER_SPEED 15
+#define BULLET_SPEED 80
+#define FIRE_DELAY 15
+#define FRAME_DELAY 16
 
 /*struct App{
     struct Entity;

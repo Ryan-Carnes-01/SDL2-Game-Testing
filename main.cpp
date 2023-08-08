@@ -225,7 +225,7 @@ int main(int argc, char*argv[]){
         app.doLogic();
         app.doDraw();
         app.presentScene();
+        SDL_Delay(FRAME_DELAY);
     }
-    SDL_Delay(16);
     return 0;
 }
