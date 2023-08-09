@@ -6,7 +6,7 @@
 
 struct App{
     struct Entity{
-        float x,y,dx,dy;
+        float x,y,dx,dy,rotation;
         int w,h;
         int health;
         int fireDelay;
@@ -16,6 +16,7 @@ struct App{
     struct Stage{
         struct Entity playerHead, *playerTail;
         struct Entity bulletHead, *bulletTail;
+        struct Entity enemyHead, *enemyTail;
         SDL_Texture* bulletTexture;
     }; 
     
@@ -50,21 +51,37 @@ struct App{
     void initStage(){
         stage.playerTail = &stage.playerHead;
         stage.bulletTail = &stage.bulletHead;
+        stage.enemyTail = &stage.enemyHead;
 
         stage.bulletTexture = loadTexture((char*)"imgs/bullet2.png");
         initPlayer();
+        initEnemy();
     }    
     void initPlayer(){
         struct Entity* player = new struct Entity;
         stage.playerTail->next = player;
         stage.playerTail = player;
 
-        player->x = 100;
-        player->y = 100;
+        player->x = PLAYER_START_X;
+        player->y = PLAYER_START_Y;
         player->health = 100;
         player->fireDelay = 0;
+        player->rotation = 0;
         player->texture = loadTexture((char*)"imgs/gunguy.png");
         SDL_QueryTexture(player->texture,NULL,NULL,&player->w,&player->h);
+    }
+    void initEnemy(){
+        struct Entity* enemy = new struct Entity;
+        stage.enemyTail->next = enemy;
+        stage.enemyTail = enemy;
+
+        enemy->x = ENEMY_START_X;
+        enemy->y = ENEMY_START_Y;
+        enemy->health = 100;
+        enemy->fireDelay = -1;
+        enemy->rotation = 180;
+        enemy->texture = loadTexture((char*)"imgs/zombert.png");
+        SDL_QueryTexture(enemy->texture,NULL,NULL,&enemy->w,&enemy->h);
     }
 
     void destroySDL(){
@@ -86,26 +103,30 @@ struct App{
         texture = IMG_LoadTexture(renderer,fname);
         return texture;
     }
-    void blit(SDL_Texture*texture, float x, float y){
+    void blit(SDL_Texture*texture, float x, float y, float rotation){
         SDL_Rect dest;
         dest.x = x;
         dest.y = y;
 
         SDL_QueryTexture(texture, NULL, NULL,&dest.w, &dest.h);
-        SDL_RenderCopy(renderer,texture,NULL,&dest);
+        SDL_RenderCopyEx(renderer,texture,NULL,&dest,rotation,NULL,SDL_FLIP_NONE);
     }
     void doDraw(){
         drawPlayer();
+        drawEnemy();
         drawBullets();
     }
     void drawPlayer(){
-        blit(stage.playerTail->texture,stage.playerTail->x,stage.playerTail->y);
+        blit(stage.playerTail->texture,stage.playerTail->x,stage.playerTail->y,stage.playerTail->rotation);
+    }
+    void drawEnemy(){
+        blit(stage.enemyTail->texture,stage.enemyTail->x,stage.enemyTail->y,stage.enemyTail->rotation);
     }
     void drawBullets(){
 	    Entity *b;
 	    for (b = stage.bulletHead.next ; b != NULL ; b = b->next)
 	    {
-		    blit(b->texture, b->x, b->y);
+		    blit(b->texture, b->x, b->y,b->rotation);
 	    }
     }
     
@@ -186,12 +207,14 @@ struct App{
         struct Entity*player = stage.playerTail;
         stage.bulletTail->next = bullet;
         stage.bulletTail = bullet;
+        stage.bulletTail->next = NULL;
 
         bullet->x = player->x + 210;
         bullet->y = player->y + 135;
         bullet->dx = BULLET_SPEED;
         bullet->dy = 0;
         bullet->health = 1;
+        bullet->rotation = 0;
         bullet->texture = stage.bulletTexture;
         SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
     }
