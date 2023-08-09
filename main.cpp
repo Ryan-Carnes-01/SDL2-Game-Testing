@@ -61,6 +61,7 @@ struct App{
         struct Entity* player = new struct Entity;
         stage.playerTail->next = player;
         stage.playerTail = player;
+        stage.playerTail->next = NULL;
 
         player->x = PLAYER_START_X;
         player->y = PLAYER_START_Y;
@@ -74,6 +75,7 @@ struct App{
         struct Entity* enemy = new struct Entity;
         stage.enemyTail->next = enemy;
         stage.enemyTail = enemy;
+        stage.enemyTail->next = NULL;
 
         enemy->x = ENEMY_START_X;
         enemy->y = ENEMY_START_Y;
@@ -117,15 +119,20 @@ struct App{
         drawBullets();
     }
     void drawPlayer(){
-        blit(stage.playerTail->texture,stage.playerTail->x,stage.playerTail->y,stage.playerTail->rotation);
+        Entity *p;
+        for(p = stage.playerHead.next; p != NULL; p = p->next){
+            blit(p->texture,p->x,p->y,p->rotation);
+        } 
     }
     void drawEnemy(){
-        blit(stage.enemyTail->texture,stage.enemyTail->x,stage.enemyTail->y,stage.enemyTail->rotation);
+        Entity *e;
+        for(e = stage.enemyHead.next; e != NULL; e = e->next){
+            blit(e->texture,e->x,e->y,e->rotation);
+        }
     }
     void drawBullets(){
 	    Entity *b;
-	    for (b = stage.bulletHead.next ; b != NULL ; b = b->next)
-	    {
+	    for (b = stage.bulletHead.next ; b != NULL ; b = b->next){
 		    blit(b->texture, b->x, b->y,b->rotation);
 	    }
     }
@@ -164,7 +171,9 @@ struct App{
 
     void doLogic(){
         doPlayer();
+        doEnemy();
         doBullets();
+        doCollision();
     }
     void doPlayer(){
         struct Entity*player = stage.playerTail;
@@ -202,6 +211,15 @@ struct App{
         player->x += player->dx;
         player->y += player->dy;
     }
+    void doEnemy(){
+        struct Entity*enemy = stage.enemyTail;
+        enemy->dx = enemy->dy = 0;
+
+        enemy->dx = -ENEMY_SPEED;
+
+        if(enemy->x > 0)
+            enemy->x += enemy->dx;
+    }
     void fireBullet(){
         struct Entity*bullet = new struct Entity;
         struct Entity*player = stage.playerTail;
@@ -213,7 +231,7 @@ struct App{
         bullet->y = player->y + 135;
         bullet->dx = BULLET_SPEED;
         bullet->dy = 0;
-        bullet->health = 1;
+        bullet->health = 100;
         bullet->rotation = 0;
         bullet->texture = stage.bulletTexture;
         SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
@@ -235,6 +253,18 @@ struct App{
             }
             prev = b;
         }
+    }
+    void doCollision(){
+        struct Entity*b,*e;
+        e = stage.enemyTail;
+        for(b = stage.bulletHead.next; b != NULL; b = b->next){
+            if(collision(e->x,e->y,e->w,e->h,b->x,b->y,b->w,b->h)){
+                printf("OWOWOWOOWWOWOWOWOWOWOWOWOOWOWOWOWOWOWOOWOWOWOWOWOWOOWOWOWOWOOWOWOWOWOOWOWOWOWOWOWOWOWOWOWOOWOWOWOOWOWOWOWOWOOWOOWOWOWOWOOW");
+            }
+        }
+    }
+    bool collision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2){
+        return (std::max(x1, x2) < std::min(x1 + w1, x2 + w2)) && (std::max(y1, y2) < std::min(y1 + h1, y2 + h2));
     }
 };
 

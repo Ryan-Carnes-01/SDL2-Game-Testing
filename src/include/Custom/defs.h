@@ -8,26 +8,5 @@
 #define FIRE_DELAY 15
 #define ENEMY_START_X 700
 #define ENEMY_START_Y 200
+#define ENEMY_SPEED 4
 #define FRAME_DELAY 16
-
-/*struct App{
-    struct Entity;
-    struct Stage;
-    void initSDL();
-    void destroySDL();
-    void prepareScene();
-    void presentScene();
-    SDL_Texture* loadTexture(char*);
-    void blit(SDL_Texture*, float, float);
-    void doInput();
-    void initPlayer();
-    void initStage();
-    void drawPlayer();
-    void drawBullets();
-    void doDraw();
-    void doKeyUp(SDL_KeyboardEvent*);
-    void doKeyDown(SDL_KeyboardEvent*);
-    void doLogic();
-    void doPlayer();
-    void doBullets();
-};*/
