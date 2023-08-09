@@ -158,22 +158,31 @@ struct App{
     }   
     void doKeyUp(SDL_KeyboardEvent *event){
 	    if (event->repeat == 0 && event->keysym.scancode < MAX_KEYBOARD_KEYS){
-            printf("KEYUP");
 		    keyboard[event->keysym.scancode] = 0;
 	    }
     }
     void doKeyDown(SDL_KeyboardEvent *event){
 	    if (event->repeat == 0 && event->keysym.scancode < MAX_KEYBOARD_KEYS){
-            printf("KEYDOWN");
 		    keyboard[event->keysym.scancode] = 1;
 	    }
     }
 
     void doLogic(){
+        doCollision();
         doPlayer();
         doEnemy();
         doBullets();
-        doCollision();
+    }
+    void doCollision(){
+        struct Entity*b,*e;
+        for(b = stage.bulletHead.next; b != NULL; b=b->next){
+            for(e = stage.enemyHead.next; e != NULL; e=e->next){
+                if(collision(b->x,b->y,b->w,b->h,e->x,e->y,e->w,e->h)){
+                    e->health -= b->health;
+                    b->health = 0;
+                }
+            }
+        }
     }
     void doPlayer(){
         struct Entity*player = stage.playerTail;
@@ -211,15 +220,6 @@ struct App{
         player->x += player->dx;
         player->y += player->dy;
     }
-    void doEnemy(){
-        struct Entity*enemy = stage.enemyTail;
-        enemy->dx = enemy->dy = 0;
-
-        enemy->dx = -ENEMY_SPEED;
-
-        if(enemy->x > 0)
-            enemy->x += enemy->dx;
-    }
     void fireBullet(){
         struct Entity*bullet = new struct Entity;
         struct Entity*player = stage.playerTail;
@@ -231,7 +231,7 @@ struct App{
         bullet->y = player->y + 135;
         bullet->dx = BULLET_SPEED;
         bullet->dy = 0;
-        bullet->health = 100;
+        bullet->health = BULLET_DAMAGE;
         bullet->rotation = 0;
         bullet->texture = stage.bulletTexture;
         SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
@@ -243,7 +243,7 @@ struct App{
             b->x += b->dx;
             b->y += b->dy;
 
-            if(b->x > SCREEN_WIDTH){
+            if(b->x > SCREEN_WIDTH || b->health <= 0){
                 if (b == stage.bulletTail){
 				    stage.bulletTail = prev;
 			    }
@@ -254,14 +254,21 @@ struct App{
             prev = b;
         }
     }
-    void doCollision(){
-        struct Entity*b,*e;
-        e = stage.enemyTail;
-        for(b = stage.bulletHead.next; b != NULL; b = b->next){
-            if(collision(e->x,e->y,e->w,e->h,b->x,b->y,b->w,b->h)){
-                printf("OWOWOWOOWWOWOWOWOWOWOWOWOOWOWOWOWOWOWOOWOWOWOWOWOWOOWOWOWOWOOWOWOWOWOOWOWOWOWOWOWOWOWOWOWOOWOWOWOOWOWOWOWOWOOWOOWOWOWOWOOW");
+    void doEnemy(){
+        struct Entity*e,*prev;
+        prev = &stage.enemyHead;
+        for(e = stage.enemyHead.next; e != NULL; e = e->next){
+            if(e->health <= 0){
+                if(e == stage.enemyTail){
+                    stage.enemyTail = prev;
+                }
+                prev->next = e->next;
+                free(e);
+                e = prev;
             }
+            prev = e;
         }
+        
     }
     bool collision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2){
         return (std::max(x1, x2) < std::min(x1 + w1, x2 + w2)) && (std::max(y1, y2) < std::min(y1 + h1, y2 + h2));

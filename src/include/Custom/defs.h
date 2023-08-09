@@ -5,6 +5,7 @@
 #define PLAYER_START_Y 100
 #define PLAYER_SPEED 15
 #define BULLET_SPEED 80
+#define BULLET_DAMAGE 34
 #define FIRE_DELAY 15
 #define ENEMY_START_X 700
 #define ENEMY_START_Y 200
