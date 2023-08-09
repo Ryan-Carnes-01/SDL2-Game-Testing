@@ -24,6 +24,7 @@ struct App{
     SDL_Window* window;
     int keyboard[MAX_KEYBOARD_KEYS] = {0};
     struct Stage stage;
+    int spawnTimer = 0;
 
     void initSDL(){
         int rendererflags = SDL_RENDERER_ACCELERATED;
@@ -60,7 +61,6 @@ struct App{
         stage.enemyTexture = loadTexture((char*)"imgs/zombert.png");
         stage.playerTexture = loadTexture((char*)"imgs/gunguy.png");
         initPlayer();
-        initEnemy();
     }    
     void initPlayer(){
         struct Entity* player = new struct Entity;
@@ -82,8 +82,10 @@ struct App{
         stage.enemyTail = enemy;
         stage.enemyTail->next = NULL;
 
-        enemy->x = ENEMY_START_X;
-        enemy->y = ENEMY_START_Y;
+        enemy->x = SCREEN_WIDTH;
+        enemy->y = rand() % SCREEN_HEIGHT;
+        enemy->dx = -10;
+        enemy->dy = 0;
         enemy->health = 100;
         enemy->fireDelay = -1;
         enemy->rotation = 180;
@@ -173,10 +175,18 @@ struct App{
     }
 
     void doLogic(){
+        spawnEnemy();
         doCollision();
         doPlayer();
         doEnemy();
         doBullets();
+    }
+    void spawnEnemy(){
+        if(spawnTimer == 0){
+            initEnemy();
+            spawnTimer = 100;
+        }
+        spawnTimer--;
     }
     void doCollision(){
         struct Entity*b,*e;
@@ -272,6 +282,9 @@ struct App{
                 e = prev;
             }
             prev = e;
+
+            e->x += e->dx;
+            e->y += e->dy;
         }
         
     }
