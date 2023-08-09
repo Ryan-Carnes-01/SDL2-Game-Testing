@@ -7,7 +7,6 @@
 #define BULLET_SPEED 80
 #define BULLET_DAMAGE 34
 #define FIRE_DELAY 15
-#define ENEMY_START_X 700
-#define ENEMY_START_Y 200
+#define SPAWN_TIMER 100
 #define ENEMY_SPEED 4
 #define FRAME_DELAY 16

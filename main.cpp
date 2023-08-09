@@ -84,7 +84,7 @@ struct App{
 
         enemy->x = SCREEN_WIDTH;
         enemy->y = rand() % SCREEN_HEIGHT;
-        enemy->dx = -10;
+        enemy->dx = -ENEMY_SPEED;
         enemy->dy = 0;
         enemy->health = 100;
         enemy->fireDelay = -1;
@@ -184,7 +184,7 @@ struct App{
     void spawnEnemy(){
         if(spawnTimer == 0){
             initEnemy();
-            spawnTimer = 100;
+            spawnTimer = SPAWN_TIMER;
         }
         spawnTimer--;
     }
