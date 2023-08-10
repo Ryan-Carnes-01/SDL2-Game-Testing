@@ -2,11 +2,13 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 #include <iostream>
+#include <cmath>
 #include <Custom/defs.h>
 
 struct App{
     struct Entity{
         float x,y,dx,dy,rotation;
+        float barrelOffsetX,barrelOffsetY;
         int w,h;
         int health;
         int fireDelay;
@@ -71,6 +73,8 @@ struct App{
 
         player->x = PLAYER_START_X;
         player->y = PLAYER_START_Y;
+        player->barrelOffsetX = 215;
+        player->barrelOffsetY = 141;
         player->health = 100;
         player->fireDelay = 0;
         player->rotation = 0;
@@ -120,7 +124,11 @@ struct App{
         dest.w = width;
         dest.h = height;
 
-        SDL_RenderCopyEx(renderer,texture,NULL,&dest,rotation,NULL,SDL_FLIP_NONE);
+        SDL_Point rotationCenter;
+        rotationCenter.x = dest.w / 2;
+        rotationCenter.y = (dest.h / 2);
+
+        SDL_RenderCopyEx(renderer,texture,NULL,&dest,rotation,&rotationCenter,SDL_FLIP_NONE);
     }
     void doDraw(){
         drawBackground();
@@ -181,11 +189,24 @@ struct App{
     }
 
     void doLogic(){
+        //doMouseRotation();
         spawnEnemy();
         doCollision();
         doPlayer();
         doEnemy();
         doBullets();
+    }
+    void doMouseRotation(){
+        struct Entity* player = stage.playerTail;
+        int mouseX,mouseY;
+        SDL_GetMouseState(&mouseX,&mouseY);
+
+        float dx = mouseX - (player->x);
+        float dy = mouseY - (player->y);
+        float angleRadians = atan2(dy,dx);
+
+        float angleDegrees = angleRadians * (180.0f / M_PI);
+        player->rotation = angleDegrees;
     }
     void spawnEnemy(){
         if(spawnTimer == 0){
@@ -248,8 +269,8 @@ struct App{
         stage.bulletTail = bullet;
         stage.bulletTail->next = NULL;
 
-        bullet->x = player->x + 210;
-        bullet->y = player->y + 142;
+        bullet->x = player->x + player->barrelOffsetX;
+        bullet->y = player->y + player->barrelOffsetY;
         bullet->dx = BULLET_SPEED;
         bullet->dy = 0;
         bullet->health = BULLET_DAMAGE;
@@ -279,7 +300,7 @@ struct App{
         struct Entity*e,*prev;
         prev = &stage.enemyHead;
         for(e = stage.enemyHead.next; e != NULL; e = e->next){
-            if(e->health <= 0){
+            if(e->health <= 0 || e->x <= -(e->w)){
                 if(e == stage.enemyTail){
                     stage.enemyTail = prev;
                 }
