@@ -17,7 +17,7 @@ struct App{
         struct Entity playerHead, *playerTail;
         struct Entity bulletHead, *bulletTail;
         struct Entity enemyHead, *enemyTail;
-        SDL_Texture* bulletTexture,*enemyTexture,*playerTexture;
+        SDL_Texture* bulletTexture,*enemyTexture,*playerTexture,*groundTexture;
     }; 
     
     SDL_Renderer* renderer; 
@@ -60,6 +60,7 @@ struct App{
         stage.bulletTexture = loadTexture((char*)"imgs/bullet2.png");
         stage.enemyTexture = loadTexture((char*)"imgs/zombert.png");
         stage.playerTexture = loadTexture((char*)"imgs/gunguy.png");
+        stage.groundTexture = loadTexture((char*)"imgs/ground.jpg");
         initPlayer();
     }    
     void initPlayer(){
@@ -83,7 +84,7 @@ struct App{
         stage.enemyTail->next = NULL;
 
         enemy->x = SCREEN_WIDTH;
-        enemy->y = rand() % SCREEN_HEIGHT;
+        enemy->y = rand() % (SCREEN_HEIGHT-150);
         enemy->dx = -ENEMY_SPEED;
         enemy->dy = 0;
         enemy->health = 100;
@@ -112,35 +113,40 @@ struct App{
         texture = IMG_LoadTexture(renderer,fname);
         return texture;
     }
-    void blit(SDL_Texture*texture, float x, float y, float rotation){
+    void blit(SDL_Texture*texture, float x, float y, float rotation,int width,int height){
         SDL_Rect dest;
         dest.x = x;
         dest.y = y;
+        dest.w = width;
+        dest.h = height;
 
-        SDL_QueryTexture(texture, NULL, NULL,&dest.w, &dest.h);
         SDL_RenderCopyEx(renderer,texture,NULL,&dest,rotation,NULL,SDL_FLIP_NONE);
     }
     void doDraw(){
+        drawBackground();
         drawPlayer();
         drawEnemy();
         drawBullets();
     }
+    void drawBackground(){
+        blit(stage.groundTexture,0,0,0,SCREEN_WIDTH,SCREEN_HEIGHT);
+    }
     void drawPlayer(){
         Entity *p;
         for(p = stage.playerHead.next; p != NULL; p = p->next){
-            blit(p->texture,p->x,p->y,p->rotation);
+            blit(p->texture,p->x,p->y,p->rotation,PLAYER_TEXTURE_WIDTH,PLAYER_TEXTURE_HEIGHT);
         } 
     }
     void drawEnemy(){
         Entity *e;
         for(e = stage.enemyHead.next; e != NULL; e = e->next){
-            blit(e->texture,e->x,e->y,e->rotation);
+            blit(e->texture,e->x,e->y,e->rotation,ENEMY_TEXTURE_WIDTH,ENEMY_TEXTURE_HEIGHT);
         }
     }
     void drawBullets(){
 	    Entity *b;
 	    for (b = stage.bulletHead.next ; b != NULL ; b = b->next){
-		    blit(b->texture, b->x, b->y,b->rotation);
+		    blit(b->texture, b->x, b->y,b->rotation,BULLET_TEXTURE_WIDTH,BULLET_TEXTURE_HEIGHT);
 	    }
     }
     
@@ -192,7 +198,7 @@ struct App{
         struct Entity*b,*e;
         for(b = stage.bulletHead.next; b != NULL; b=b->next){
             for(e = stage.enemyHead.next; e != NULL; e=e->next){
-                if(collision(b->x,b->y,b->w,b->h,e->x,e->y,e->w,e->h)){
+                if(collision(b->x,b->y,b->w,b->h,e->x+80,e->y+80,e->w-70,e->h-140)){
                     e->health -= b->health;
                     b->health = 0;
                 }
@@ -243,7 +249,7 @@ struct App{
         stage.bulletTail->next = NULL;
 
         bullet->x = player->x + 210;
-        bullet->y = player->y + 135;
+        bullet->y = player->y + 142;
         bullet->dx = BULLET_SPEED;
         bullet->dy = 0;
         bullet->health = BULLET_DAMAGE;
